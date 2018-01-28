@@ -127,11 +127,26 @@ export class Device {
       //   this.drawPoint(projectedPoint)
       // })
 
-      for (let index = 0; index < mesh.Vertices.length - 1; index++) {
-        let point0: BABYLON.Vector2 = this.project(mesh.Vertices[index], transformationMatrix)
-        let point1: BABYLON.Vector2 = this.project(mesh.Vertices[index + 1], transformationMatrix)
-        this.drawLine(point0, point1)
-      }
+      // for (let index = 0; index < mesh.Vertices.length - 1; index++) {
+      //   let point0: BABYLON.Vector2 = this.project(mesh.Vertices[index], transformationMatrix)
+      //   let point1: BABYLON.Vector2 = this.project(mesh.Vertices[index + 1], transformationMatrix)
+      //   this.drawLine(point0, point1)
+      // }
+      mesh.Faces.forEach(face => {
+        let vertexA: BABYLON.Vector3 = mesh.Vertices[face.A]
+        let vertexB: BABYLON.Vector3 = mesh.Vertices[face.B]
+        let vertexC: BABYLON.Vector3 = mesh.Vertices[face.C]
+
+        let pointA = this.project(vertexA, transformationMatrix)
+        let pointB = this.project(vertexB, transformationMatrix)
+        let pointC = this.project(vertexC, transformationMatrix)
+        
+        this.drawLine(pointA, pointB)
+        this.drawLine(pointA, pointC)
+        this.drawLine(pointB, pointC)
+
+      })
+
     })
   }
 
