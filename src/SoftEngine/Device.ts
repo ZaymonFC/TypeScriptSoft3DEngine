@@ -88,7 +88,7 @@ export class Device {
    * Recursively draws a line between two points if the length is
    * greater than 2 pixels
    */
-  public drawLine = (point0: BABYLON.Vector2, point1: BABYLON.Vector2) => {
+  public drawLine = (point0: BABYLON.Vector2, point1: BABYLON.Vector2) : void => {
     // Calculate the distance between the two points
     let lineDistance: number = point1.subtract(point0).length()
 
@@ -102,6 +102,39 @@ export class Device {
     // Recurse
     this.drawLine(middlePoint, point0)
     this.drawLine(middlePoint, point1)
+  }
+
+  /** 
+   * Uses Bresenham's line algorithm to draw an approximate raster between two points
+   */
+  public drawBLine = (point0: BABYLON.Vector2, point1: BABYLON.Vector2) : void => {
+    let x0 = point0.x >> 0
+    let x1 = point1.x >> 0
+    let y0 = point0.y >> 0
+    let y1 = point1.y >> 0
+
+    let realDeltAx = Math.abs(x1 - x0)
+    let realDeltAy = Math.abs(y1 - y0)
+    let sx = (x0 < x1) ? 1 : -1
+    let sy = (y0 < y1) ? 1 : -1
+    let realError = realDeltAx - realDeltAy
+
+    while(true) {
+      this.drawPoint(new BABYLON.Vector2(x0, y0))
+      // Check if the line is finished
+      if ((x0 == x1) && (y0 == y1)) { break }
+      
+      let newError = 2 * realError
+
+      if (newError > -realDeltAy) {
+        realError -= realDeltAy
+        x0 += sx
+      }
+      if (newError < realDeltAx) {
+        realError += realDeltAx
+        y0 += sy
+      }
+    }
   }
 
   /** Method to compute vertex projection for each frame */
@@ -122,16 +155,6 @@ export class Device {
 
       let transformationMatrix = worldMatrix.multiply(ViewMatrix).multiply(projectionMatrix)
 
-      // mesh.Vertices.forEach(vertex => {  
-      //   let projectedPoint = this.project(vertex, transformationMatrix)
-      //   this.drawPoint(projectedPoint)
-      // })
-
-      // for (let index = 0; index < mesh.Vertices.length - 1; index++) {
-      //   let point0: BABYLON.Vector2 = this.project(mesh.Vertices[index], transformationMatrix)
-      //   let point1: BABYLON.Vector2 = this.project(mesh.Vertices[index + 1], transformationMatrix)
-      //   this.drawLine(point0, point1)
-      // }
       mesh.Faces.forEach(face => {
         let vertexA: BABYLON.Vector3 = mesh.Vertices[face.A]
         let vertexB: BABYLON.Vector3 = mesh.Vertices[face.B]
@@ -141,9 +164,9 @@ export class Device {
         let pointB = this.project(vertexB, transformationMatrix)
         let pointC = this.project(vertexC, transformationMatrix)
         
-        this.drawLine(pointA, pointB)
-        this.drawLine(pointA, pointC)
-        this.drawLine(pointB, pointC)
+        this.drawBLine(pointA, pointB)
+        this.drawBLine(pointA, pointC)
+        this.drawBLine(pointB, pointC)
 
       })
 
