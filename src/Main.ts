@@ -18,7 +18,7 @@ export const drawingLoop = () => {
 
   device.present()
   console.log("Testing")
-  setTimeout(() => {drawingLoop()}, 50)
+  requestAnimationFrame(drawingLoop)
 }
 
 export const init = () => {

@@ -84,24 +84,55 @@ export class Device {
     }
   }
 
+  /** 
+   * Recursively draws a line between two points if the length is
+   * greater than 2 pixels
+   */
+  public drawLine = (point0: BABYLON.Vector2, point1: BABYLON.Vector2) => {
+    // Calculate the distance between the two points
+    let lineDistance: number = point1.subtract(point0).length()
+
+    // Base case
+    if (lineDistance <= 2) { return }
+
+    // Calculate the middle point of the specified line
+    let middlePoint: BABYLON.Vector2 = point0.add((point1.subtract(point0).scale(0.5)))
+    this.drawPoint(middlePoint)
+
+    // Recurse
+    this.drawLine(middlePoint, point0)
+    this.drawLine(middlePoint, point1)
+  }
+
   /** Method to compute vertex projection for each frame */
   public render = (camera: Camera, meshes: Mesh[]) : void => {
+    // Calculate the canvas aspect ratio
     let aspectRatio = this.workingWidth / this.workingHeight
 
+    // Calculate the view matrix
     let ViewMatrix = BABYLON.Matrix.LookAtLH(camera.Position, camera.Target, BABYLON.Vector3.Up())
+
+    // Calculate the projection matrix 
     let projectionMatrix = BABYLON.Matrix.PerspectiveFovLH(this.fieldOfView, aspectRatio, 0.01, 1)
 
+    /** Core Rendering Loop */
     meshes.forEach(mesh => {
       let worldMatrix = BABYLON.Matrix.RotationYawPitchRoll(mesh.Rotation.y, mesh.Rotation.x, mesh.Rotation.z)
       .multiply(BABYLON.Matrix.Translation(mesh.Position.x, mesh.Position.y, mesh.Position.z))
 
       let transformationMatrix = worldMatrix.multiply(ViewMatrix).multiply(projectionMatrix)
 
-      mesh.Vertices.forEach(vertex => {
-        let projectedPoint = this.project(vertex, transformationMatrix)
-        this.drawPoint(projectedPoint)
-      })
-    });
+      // mesh.Vertices.forEach(vertex => {  
+      //   let projectedPoint = this.project(vertex, transformationMatrix)
+      //   this.drawPoint(projectedPoint)
+      // })
+
+      for (let index = 0; index < mesh.Vertices.length - 1; index++) {
+        let point0: BABYLON.Vector2 = this.project(mesh.Vertices[index], transformationMatrix)
+        let point1: BABYLON.Vector2 = this.project(mesh.Vertices[index + 1], transformationMatrix)
+        this.drawLine(point0, point1)
+      }
+    })
   }
 
 }
