@@ -167,11 +167,7 @@ export class Device {
         this.drawBLine(pointA, pointB)
         this.drawBLine(pointA, pointC)
         this.drawBLine(pointB, pointC)
-
       })
-
     })
   }
-
 }
-

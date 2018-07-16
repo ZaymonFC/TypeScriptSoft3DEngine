@@ -11,19 +11,17 @@ let cameraFOV: number
 export const drawingLoop = () => {
   device.clear()
 
-  mesh.Rotation.x += 0.01
-  mesh.Rotation.y += 0.01
+  mesh.Rotation.x += 0.05
+  mesh.Rotation.y += 0.05
 
   device.render(camera, meshes)
 
   device.present()
-  console.log("Testing")
   requestAnimationFrame(drawingLoop)
 }
 
 export const init = () => {
   canvas = <HTMLCanvasElement>document.getElementById("HTMLCanvas")
-
 
   camera = new SoftEngine.Camera()
   cameraFOV = 0.80

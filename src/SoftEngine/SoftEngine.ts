@@ -1,3 +1,3 @@
-export { Mesh } from './Mesh'
+export { Mesh, Face } from './Mesh'
 export { Camera } from './Camera'
 export { Device } from './Device'
